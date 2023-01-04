@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100vh;
+        width: 100vw;
+        padding: 0;
+        overflow: hidden;
+      }
+      .container {
+        max-height: 100vh;
+        background-color: aqua;
+        overflow: auto;
+      }
+      .header {
+        height: 0;
+        background: #ffffff;
+        position: relative;
+      }
+      .header-text {
+        position: absolute;
+        bottom: 0;
+        line-height: 40px;
+      }
+      .content {
+        height: 150vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="container">
+      <div class="header" id="header">
+        <div class="header-text" style="height: 10vw">hello world</div>
+      </div>
+      <div class="content">hello world</div>
+    </div>
+    <script>
+      const dom = document.getElementById("container");
+      class Touch {
+        constructor() {
+          this.dom = document.getElementById("container");
+          this.header = document.getElementById("header");
+          this.init();
+          this.page = {
+            pageX: 0,
+            pageY: 0,
+          };
+          this.touching = false;
+          this.max = 80;
+        }
+        init() {
+          this.dom.addEventListener("touchstart", (e) => {
+            const [touch] = e.touches;
+            const { pageX, pageY } = touch;
+            this.touching = true;
+            Object.assign(this.page, {
+              pageX,
+              pageY,
+            });
+          });
+          this.dom.addEventListener("touchmove", (e) => {
+            if (this.touching) {
+              const height = this.getComputed(this.header, "height");
+              const [touch] = e.touches;
+              const { pageX, pageY } = touch;
+              const h = parseFloat(height) + 0.3 * (pageY - this.page.pageY);
+              this.header.setAttribute("style", `height: ${h}px`);
+              Object.assign(this.page, {
+                pageX,
+                pageY,
+              });
+            }
+          });
+          this.dom.addEventListener("touchend", (e) => {
+            this.touching = false;
+            const header = this.header;
+            let height = parseFloat(this.getComputed(this.header, "height"));
+            function bounce() {
+              height = height - 30;
+              if (height < 0) {
+                height = 0;
+              }
+              header.setAttribute("style", `height: ${height}px`);
+              if (height > 0) {
+                window.requestAnimationFrame(bounce);
+              }
+            }
+            bounce(this.page.pageY);
+            Object.assign(this.page, {
+              pageX: 0,
+              pageY: 0,
+            });
+          });
+
+          this.dom.addEventListener("mousedown", (e) => {
+            const [touch] = e.touches || [];
+            const { pageX, pageY } = touch || e;
+            this.touching = true;
+            Object.assign(this.page, {
+              pageX,
+              pageY,
+            });
+          });
+          this.dom.addEventListener("mousemove", (e) => {
+            if (this.touching) {
+              const height = this.getComputed(this.header, "height");
+              const [touch] = e.touches || [];
+              const { pageX, pageY } = touch || e;
+              const h = parseFloat(height) + 0.3 * (pageY - this.page.pageY);
+              this.header.setAttribute("style", `height: ${h}px`);
+              Object.assign(this.page, {
+                pageX,
+                pageY,
+              });
+            }
+          });
+          this.dom.addEventListener("mouseup", (e) => {
+            this.touching = false;
+            const header = this.header;
+            let height = parseFloat(this.getComputed(this.header, "height"));
+            function bounce() {
+              height = height - 30;
+              if (height < 0) {
+                height = 0;
+              }
+              header.setAttribute("style", `height: ${height}px`);
+              if (height > 0) {
+                window.requestAnimationFrame(bounce);
+              }
+            }
+            bounce(this.page.pageY);
+            Object.assign(this.page, {
+              pageX: 0,
+              pageY: 0,
+            });
+          });
+        }
+        getComputed(dom, style) {
+          return window.getComputedStyle(dom)[style];
+        }
+      }
+      new Touch();
+    </script>
+  </body>
+</html>

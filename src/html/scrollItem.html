@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      .main {
+        height: 100px;
+        width: 100%;
+        border: 1px solid red;
+        display: flex;
+        position: relative;
+      }
+      .item {
+        flex: 1;
+        text-align: center;
+        line-height: 100px;
+        border-right: 1px solid red;
+      }
+      .last {
+        border-right: none;
+      }
+      #process {
+        position: absolute;
+        height: 10px;
+        width: 20px;
+        bottom: 0px;
+        background-color: lightgray;
+        border-radius: 999px;
+        left: 0;
+      }
+      .active {
+        background: lightyellow;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+      <div class="item" onclick="handleClick(this, 0)">first</div>
+      <div class="item" onclick="handleClick(this, 1)">second</div>
+      <div class="item last" onclick="handleClick(this, 2)">third</div>
+      <div id="process"></div>
+    </div>
+    <script>
+      class Move {
+        constructor({
+          active,
+          itemClass,
+          activeClass,
+          process,
+          stepTime = 7,
+        }) {
+          this.active = active;
+          this.oldActive = active;
+          this.activeClass = activeClass;
+          this.itemClass = itemClass;
+          this.process = process;
+          this.stepTime = stepTime;
+          this.targetWidth = 0;
+          this.step = 0;
+          this.width = 0;
+          this.timer = null;
+          this.init();
+        }
+        init() {
+          this.docList = [...document.getElementsByClassName(this.itemClass)];
+          const activeDom = this.docList[this.active];
+          const computedStyle = window.getComputedStyle(activeDom);
+          this.processDom = document.getElementById(this.process);
+          this.processWidth = parseFloat(
+            window.getComputedStyle(this.processDom)["width"]
+          );
+          this.normalWidth = parseFloat(computedStyle["width"]);
+          this.setActiveClassDom();
+          this.updateProcessDom(`${this.getProcessLeft()}`);
+        }
+        getProcessLeft(active = this.oldActive) {
+          return `${
+            this.normalWidth / 2 +
+            this.normalWidth * active -
+            this.processWidth / 2
+          }`;
+        }
+        updateProcessDom(left, width = this.processWidth) {
+          this.processDom.setAttribute(
+            "style",
+            `transform: translateX(${left}px); width: ${width}px`
+          );
+        }
+        setActiveClassDom() {
+          const activeDom = this.docList[this.active];
+          activeDom.className = activeDom.className + ` ${this.activeClass}`;
+        }
+        removeActiveClassDom() {
+          const oldActiveDom = this.docList[this.oldActive];
+          oldActiveDom.className = oldActiveDom.className.replace(
+            ` ${this.activeClass}`,
+            ""
+          );
+        }
+        handleClick1 = (e, index) => {
+          if (this.active === index) {
+            return;
+          }
+          this.active = index;
+          this.setActiveClassDom();
+          this.removeActiveClassDom();
+          const processDom = window.getComputedStyle(this.processDom);
+          const left = parseFloat(processDom["transform"].split(",")[4]);
+          const targetWidth =
+            Math.abs((this.active + 0.5) * this.normalWidth - left) +
+            this.processWidth / 2;
+          const targetLeft = parseFloat(this.getProcessLeft(this.active));
+          const width = parseFloat(processDom["width"]);
+          const step =
+            (targetWidth > width ? targetWidth : width) / this.stepTime;
+          this.handleMove({
+            add: this.active > this.oldActive,
+            targetWidth: targetWidth > width ? targetWidth : width,
+            targetLeft,
+            step: step,
+            width,
+            left,
+          });
+          this.oldActive = this.active;
+        };
+        handleMove({ add, targetWidth, targetLeft, step, width, left }) {
+          if (this.timer) {
+            window.cancelAnimationFrame(this.timer);
+          }
+          if (add) {
+            const addFn = () => {
+              if (width + step > targetWidth) {
+                width = targetWidth;
+                this.updateProcessDom(left, width);
+                const handleLeft = () => {
+                  if (left + step > targetLeft) {
+                    width = this.processWidth;
+                    left = targetLeft;
+                    this.updateProcessDom(left, width);
+                    return;
+                  } else {
+                    left = left + step;
+                    width = width - step;
+                    this.updateProcessDom(left, width);
+                    this.timer = window.requestAnimationFrame(handleLeft);
+                  }
+                };
+                handleLeft();
+                return;
+              } else {
+                width = width + step;
+                this.updateProcessDom(left, width);
+                this.timer = window.requestAnimationFrame(addFn);
+              }
+            };
+            addFn();
+          } else {
+            const downFn = () => {
+              if (left - step < targetLeft) {
+                left = targetLeft;
+                width = targetWidth;
+                this.updateProcessDom(left, width);
+                const handleWidth = () => {
+                  if (width - step < this.processWidth) {
+                    width = this.processWidth;
+                    this.updateProcessDom(left, width);
+                    return;
+                  } else {
+                    width = width - step;
+                    this.updateProcessDom(left, width);
+                    this.timer = window.requestAnimationFrame(handleWidth);
+                  }
+                };
+                handleWidth();
+                return;
+              } else {
+                left = left - step;
+                width = width + step;
+                this.updateProcessDom(left, width);
+                this.timer = window.requestAnimationFrame(downFn);
+              }
+            };
+            downFn();
+          }
+        }
+        handleClick = (e, index) => {
+          if (this.active === index) {
+            return;
+          }
+          this.active = index;
+          this.setActiveClassDom();
+          this.removeActiveClassDom();
+          this.targetWidth =
+            Math.abs(this.active - this.oldActive) * this.normalWidth +
+            this.processWidth;
+          this.targetLeft = parseFloat(this.getProcessLeft(this.active));
+          this.step = this.targetWidth / this.stepTime;
+          this.width = this.processWidth;
+          this.left = parseFloat(this.getProcessLeft());
+          if (this.active > this.oldActive) {
+            this.handleAdd();
+          } else {
+            this.handleDown();
+          }
+          this.oldActive = this.active;
+        };
+        handleAdd = () => {
+          if (this.width + this.step > this.targetWidth) {
+            this.width = this.targetWidth;
+            this.updateProcessDom(this.left, this.width);
+            let targetLeft = this.targetLeft;
+            const handleLeft = () => {
+              if (this.left + this.step > targetLeft) {
+                this.width = this.processWidth;
+                this.left = targetLeft;
+                this.updateProcessDom(this.left, this.width);
+                return;
+              } else {
+                this.left = this.left + this.step;
+                this.width = this.width - this.step;
+                this.updateProcessDom(this.left, this.width);
+                window.requestAnimationFrame(handleLeft);
+              }
+            };
+            handleLeft();
+            return;
+          } else {
+            this.width = this.width + this.step;
+            this.updateProcessDom(this.left, this.width);
+            window.requestAnimationFrame(this.handleAdd);
+          }
+        };
+        handleDown = () => {
+          if (this.left - this.step < this.targetLeft) {
+            this.left = this.targetLeft;
+            this.width = this.targetWidth;
+            this.updateProcessDom(this.left, this.width);
+            const handleWidth = () => {
+              if (this.width - this.step < this.processWidth) {
+                this.width = this.processWidth;
+                this.updateProcessDom(this.left, this.width);
+                return;
+              } else {
+                this.width = this.width - this.step;
+                this.updateProcessDom(this.left, this.width);
+                window.requestAnimationFrame(handleWidth);
+              }
+            };
+            handleWidth();
+            return;
+          } else {
+            this.left = this.left - this.step;
+            this.width = this.width + this.step;
+            this.updateProcessDom(this.left, this.width);
+            window.requestAnimationFrame(this.handleDown);
+          }
+        };
+      }
+      let move = new Move({
+        active: 0,
+        itemClass: "item",
+        activeClass: "active",
+        process: "process",
+      });
+      function handleClick(e, index) {
+        move.handleClick1(e, index);
+      }
+    </script>
+  </body>
+</html>

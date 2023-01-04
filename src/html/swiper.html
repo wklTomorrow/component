@@ -1,0 +1,417 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      .container {
+        height: 400px;
+        width: 400px;
+        box-sizing: border-box;
+        border: 1px solid lightgray;
+        margin: 0 auto;
+        padding: 40px;
+        overflow: hidden;
+      }
+      .swiper {
+        height: 100%;
+        display: flex;
+        width: max-content;
+        flex-direction: row;
+        overflow-x: hidden;
+        position: relative;
+        left: 0px;
+      }
+      .swiper-item {
+        width: 318px;
+        flex-shrink: 0;
+        background: lightpink;
+        margin: 0 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="swiper" id="swiper">
+        <div class="swiper-item">1</div>
+        <div class="swiper-item">2</div>
+        <div class="swiper-item">3</div>
+        <div class="swiper-item">4</div>
+        <div class="swiper-item">5</div>
+      </div>
+    </div>
+    <script>
+      // class Swiper {
+      //   constructor({
+      //     el,
+      //     swiperItemEl = "",
+      //     stayTime = 3000,
+      //     movingTime = 20,
+      //     active = 0,
+      //     canDrag = true,
+      //     autoRun = true,
+      //   }) {
+      //     this.dom = document.getElementById(el);
+      //     this.swiperItemDom = document.getElementsByClassName(swiperItemEl)[0];
+      //     this.stayTime = stayTime;
+      //     this.movingTime = movingTime;
+      //     this.active = active;
+      //     this.swiperItem = {};
+      //     this.left = 0;
+      //     this.targetLeft = 0;
+      //     this.step = 0;
+      //     this.oldActive = this.active - 1;
+      //     this.autoRun = autoRun;
+      //     this.timer = null;
+      //     this.init();
+      //     if (canDrag) {
+      //       this.initDrag();
+      //     }
+      //   }
+      //   initDrag() {
+      //     let isDrag = false;
+      //     const moveParams = {
+      //       direction: -1,
+      //       pageX: 0,
+      //       width: this.swiperItem.width,
+      //     };
+      //     function handleMouseDown(e) {
+      //       isDrag = true;
+      //       this.timer && clearTimeout(this.timer);
+      //       this.timer = null;
+      //       moveParams.pageX = e.pageX;
+      //     }
+      //     function handleMouseMove(e) {
+      //       if (isDrag) {
+      //         const domLeft = parseFloat(
+      //           this.handelComputeStyle("left", this.dom)
+      //         );
+      //         this.setRootStyle(domLeft + e.pageX - moveParams.pageX);
+      //         moveParams.direction = e.pageX - moveParams.pageX;
+      //         moveParams.pageX = e.pageX;
+      //         console.log("mousemove");
+      //       }
+      //     }
+      //     function handleMouseUp(e) {
+      //       const domLeft = parseFloat(
+      //         this.handelComputeStyle("left", this.dom)
+      //       );
+      //       this.setMoveParams();
+      //       const bounce = () => {
+      //         this.targetLeft = this.active * -this.swiperItem.width;
+      //         this.left = domLeft;
+      //         this.goTarget();
+      //         this.active = this.active;
+      //         this.oldActive = this.active - 1;
+      //       };
+      //       const moveLength = Math.abs(domLeft - this.left);
+      //       if (moveLength >= this.swiperItem.width / 3) {
+      //         if (
+      //           (this.active === 0 && this.left <= domLeft) ||
+      //           ((this.active > 3 || this.active < 0) && this.left >= domLeft)
+      //         ) {
+      //           console.log("bounce");
+      //           bounce();
+      //         } else {
+      //           this.oldActive = this.active;
+      //           this.left = -this.swiperItem.width * this.oldActive;
+      //           if (this.left >= domLeft) {
+      //             this.left = domLeft;
+      //             this.targetLeft = -this.swiperItem.width * (this.active + 1);
+      //             this.goTarget();
+      //             this.active = this.active + 1;
+      //           } else {
+      //             this.left = domLeft;
+      //             this.targetLeft = -this.swiperItem.width * (this.active - 1);
+      //             this.goTarget();
+      //             this.active = this.active - 1;
+      //           }
+      //         }
+      //         // }
+      //       } else {
+      //         bounce();
+      //       }
+      //       isDrag = false;
+      //       this.run();
+      //     }
+      //     this.dom.addEventListener("mousedown", handleMouseDown.bind(this));
+      //     this.dom.addEventListener("mousemove", handleMouseMove.bind(this));
+      //     this.dom.addEventListener("mouseup", handleMouseUp.bind(this));
+      //   }
+      //   init() {
+      //     const width = this.handelComputeStyle("width");
+      //     const marginRight = this.handelComputeStyle("margin-right");
+      //     this.swiperItem.width =
+      //       parseFloat(width) + 2 * parseFloat(marginRight);
+      //     this.setMoveParams();
+      //     this.setRootStyle();
+      //     if (this.autoRun) {
+      //       this.run();
+      //     }
+      //   }
+      //   handelComputeStyle(type, dom = this.swiperItemDom) {
+      //     return window.getComputedStyle(dom)[type];
+      //   }
+      //   setRootStyle(left = this.left) {
+      //     this.dom.setAttribute("style", `left: ${left}px;`);
+      //   }
+      //   setMoveParams() {
+      //     this.left = -this.swiperItem.width * (this.oldActive + 1);
+      //     this.targetLeft = -this.swiperItem.width * (this.active + 1);
+      //     this.step = Math.abs(this.targetLeft - this.left) / this.movingTime;
+      //   }
+      //   setNext(nextValue) {
+      //     this.oldActive = this.active;
+
+      //     if (this.active < 0) {
+      //       this.active = this.active - nextValue;
+      //     } else {
+      //       this.active = this.active + nextValue;
+      //     }
+      //     if (this.active > 3) {
+      //       this.active = -1;
+      //     }
+      //     this.setMoveParams();
+      //     this.run();
+      //   }
+      //   run() {
+      //     this.timer = setTimeout(() => {
+      //       // 总是向右轮播
+      //       if (this.active < this.oldActive && this.active >= 0) {
+      //         this.oldActive = this.active - 1;
+      //       }
+      //       if (this.active > 3) {
+      //         this.active = -1;
+      //       }
+      //       this.setMoveParams();
+      //       this.goTarget(this.setNext.bind(this));
+      //       clearTimeout(this.timer);
+      //       this.timer = null;
+      //     }, this.stayTime);
+      //   }
+      //   goTarget(cb) {
+      //     let left = this.left,
+      //       step = this.step,
+      //       targetLeft = this.targetLeft,
+      //       setRootStyle = this.setRootStyle.bind(this);
+      //     if (this.left > this.targetLeft) {
+      //       console.log("goRight");
+      //       function goRight() {
+      //         left = Math.max(left - step, targetLeft);
+      //         setRootStyle(left);
+      //         if (left > targetLeft) {
+      //           window.requestAnimationFrame(goRight);
+      //         } else {
+      //           cb && cb(1);
+      //           console.log(this.active, "right");
+      //         }
+      //       }
+      //       goRight();
+      //     } else {
+      //       function goLeft() {
+      //         left = Math.min(left + step, targetLeft);
+      //         setRootStyle(left);
+      //         if (left < targetLeft) {
+      //           window.requestAnimationFrame(goLeft);
+      //         } else {
+      //           cb && cb(-1);
+      //           console.log(this.active, "left");
+      //         }
+      //       }
+      //       goLeft();
+      //     }
+      //   }
+      // }
+      class Swiper {
+        constructor({
+          el,
+          swiperItemEl = "",
+          stayTime = 3000,
+          movingTime = 20,
+          active = 0,
+          canDrag = true,
+          autoRun = true,
+        }) {
+          this.dom = document.getElementById(el);
+          this.swiperItemListDom =
+            document.getElementsByClassName(swiperItemEl);
+          this.swiperItemDom = this.swiperItemListDom[0];
+          this.childLength = this.swiperItemListDom.length;
+          this.stayTime = stayTime;
+          this.movingTime = movingTime;
+          this.active = active;
+          this.swiperItem = {};
+          this.left = 0;
+          this.targetLeft = 0;
+          this.step = 0;
+          this.oldActive = this.active - 1;
+          this.autoRun = autoRun;
+          this.timer = null;
+          this.init();
+          if (canDrag) {
+            this.initDrag();
+          }
+        }
+        initDrag() {
+          let isDrag = false;
+          const moveParams = {
+            pageX: 0,
+          };
+          function handleMouseDown(e) {
+            isDrag = true;
+            this.timer && clearTimeout(this.timer);
+            this.timer = null;
+            moveParams.pageX = e.pageX;
+          }
+          function handleMouseMove(e) {
+            if (isDrag) {
+              const domLeft = parseFloat(
+                this.handelComputeStyle("left", this.dom)
+              );
+              this.setRootStyle(domLeft + e.pageX - moveParams.pageX);
+              moveParams.pageX = e.pageX;
+              console.log("mousemove");
+            }
+          }
+          function handleMouseUp() {
+            const domLeft = parseFloat(
+              this.handelComputeStyle("left", this.dom)
+            );
+            this.setMoveParams();
+            const bounce = () => {
+              this.targetLeft = this.active * -this.swiperItem.width;
+              this.left = domLeft;
+              this.goTarget();
+              this.active = this.active;
+              this.oldActive = this.active - 1;
+            };
+            const moveLength = Math.abs(domLeft - this.left);
+            if (moveLength >= this.swiperItem.width / 3) {
+              if (
+                (this.active === 0 && this.left <= domLeft) ||
+                ((this.active >= this.childLength - 1 || this.active < 0) &&
+                  this.left >= domLeft)
+              ) {
+                bounce();
+              } else {
+                this.oldActive = this.active;
+                this.left = -this.swiperItem.width * this.oldActive;
+                if (this.left >= domLeft) {
+                  this.left = domLeft;
+                  this.targetLeft = -this.swiperItem.width * (this.active + 1);
+                  this.goTarget();
+                  this.active = this.active + 1;
+                } else {
+                  this.left = domLeft;
+                  this.targetLeft = -this.swiperItem.width * (this.active - 1);
+                  this.goTarget();
+                  this.active = this.active - 1;
+                }
+              }
+            } else {
+              bounce();
+            }
+            isDrag = false;
+            this.run();
+          }
+          this.dom.addEventListener("mousedown", handleMouseDown.bind(this));
+          this.dom.addEventListener("mousemove", handleMouseMove.bind(this));
+          this.dom.addEventListener("mouseup", handleMouseUp.bind(this));
+        }
+        init() {
+          const width = this.handelComputeStyle("width");
+          const marginRight = this.handelComputeStyle("margin-right");
+          this.swiperItem.width =
+            parseFloat(width) + 2 * parseFloat(marginRight);
+          this.setMoveParams();
+          this.setRootStyle();
+          if (this.autoRun) {
+            this.run();
+          }
+        }
+        handelComputeStyle(type, dom = this.swiperItemDom) {
+          return window.getComputedStyle(dom)[type];
+        }
+        setRootStyle(left = this.left) {
+          this.dom.setAttribute("style", `left: ${left}px;`);
+        }
+        setMoveParams() {
+          this.left = -this.swiperItem.width * (this.oldActive + 1);
+          this.targetLeft = -this.swiperItem.width * (this.active + 1);
+          this.step = Math.abs(this.targetLeft - this.left) / this.movingTime;
+        }
+        setNext(nextValue) {
+          this.oldActive = this.active;
+
+          if (this.active < 0) {
+            this.active = this.active - nextValue;
+          } else {
+            this.active = this.active + nextValue;
+          }
+          if (this.active >= this.childLength - 1) {
+            this.active = -1;
+          }
+          this.setMoveParams();
+          this.run();
+        }
+        run() {
+          if (this.childLength < 1) {
+            return;
+          }
+          this.timer = setTimeout(() => {
+            // 总是向右轮播
+            if (this.active < this.oldActive && this.active >= 0) {
+              this.oldActive = this.active - 1;
+            }
+            if (this.active >= this.childLength - 1) {
+              this.active = -1;
+            }
+            this.setMoveParams();
+            this.goTarget(this.setNext.bind(this));
+            clearTimeout(this.timer);
+            this.timer = null;
+          }, this.stayTime);
+        }
+        goTarget(cb) {
+          let left = this.left,
+            step = this.step,
+            targetLeft = this.targetLeft,
+            setRootStyle = this.setRootStyle.bind(this);
+          if (this.left > this.targetLeft) {
+            console.log("goRight");
+            function goRight() {
+              left = Math.max(left - step, targetLeft);
+              setRootStyle(left);
+              if (left > targetLeft) {
+                window.requestAnimationFrame(goRight);
+              } else {
+                cb && cb(1);
+                console.log(this.active, "right");
+              }
+            }
+            goRight();
+          } else {
+            function goLeft() {
+              left = Math.min(left + step, targetLeft);
+              setRootStyle(left);
+              if (left < targetLeft) {
+                window.requestAnimationFrame(goLeft);
+              } else {
+                cb && cb(-1);
+                console.log(this.active, "left");
+              }
+            }
+            goLeft();
+          }
+        }
+      }
+
+      new Swiper({
+        el: "swiper",
+        swiperItemEl: "swiper-item",
+      });
+      // new Swiper({
+      //   el: "swiper",
+      //   swiperItemEl: "swiper-item",
+      // }).run();
+    </script>
+  </body>
+</html>
