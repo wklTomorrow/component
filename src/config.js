@@ -16,6 +16,11 @@ export const vue = [
     path: "pop",
     component: () => import("/src/vue/component/pop/index.vue"),
   },
+  {
+    name: "表情",
+    path: "emoji",
+    component: () => import("/src/vue/component/emoji/index.vue"),
+  },
 ];
 
 export const react = [
@@ -90,6 +95,10 @@ export const html = [
   {
     name: "粘性布局",
     path: "/sticky.html",
+  },
+  {
+    name: "锚点",
+    path: "/anchor.html",
   },
 ];
 
