@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body, html {
+                margin: 0;
+                padding: 0;
+            }
+            .main {
+                height: 50vh;
+                overflow: hidden;
+                /* width: 50vw; */
+            }
+            #touch {
+                position: relative;
+                font-size: 0;
+                display: flex;
+            }
+            .box {
+                margin-top: 10vw;
+                height: 30vw;
+                width: 100vw;
+                border-radius: 20px;
+                flex-shrink: 0;
+            }
+            .f {
+                background-color: lightgreen;
+            }
+            .s {
+                background-color: gray;
+                transform: scaleY(80%);
+            }
+            .t {
+                background-color: lightpink;
+                transform: scaleY(80%);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <div id="touch">
+                <div class="box f" id="content-0">first</div>
+                <div class="box s" id="content-1">second</div>
+                <div class="box t" id="content-2">third</div>
+                <div class="box s" id="content-3">third</div>
+                <div class="box t" id="content-4">third</div>
+                <div class="box s" id="content-5">third</div>
+                <div class="box t" id="content-6">third</div>
+            </div>
+            <button onclick="onGoNext()">下一个</button>
+        </div>
+        <script>
+            class Scroll {
+                constructor(id) {
+                    this.dom = document.getElementById(id)
+                    this.widthDom = document.getElementById('content-2')
+                    this.isMove = false
+                    this.move = 0
+                    this.point = {
+                        x: 0,
+                        y: 0
+                    }
+                    this.speed = 50
+                    this.currentIndex = 0
+                    this.oldIndex = 0
+                    this.startTransform = 0
+                    this.transform = 0
+                    this.length = this.widthDom.offsetWidth
+                    this.cardLength = 6
+                    this.isCirculation = true // 是否循环
+                    this.init()
+                }
+
+                init() {
+                    this.dom.addEventListener('touchstart', this.touchstart, false)
+                }
+
+                getFunc = (type) => {
+                    const operate = {
+                        getMin: (left, right) => {
+                            return left > right ? right : left
+                        },
+                        getMax: (left, right) => {
+                            return left > right ? left : right
+                        },
+                        getBefore: ({
+                            moveLength,
+                            speed,
+                            transLen,
+                            cb
+                        }) => {
+                            const moveBefore = () => {
+                                if (transLen < moveLength) {
+                                    transLen = this.getFunc('getMin')(transLen + speed, moveLength)
+                                    cb && cb(transLen)
+                                    window.requestAnimationFrame(moveBefore)
+                                }
+                            }
+                            window.requestAnimationFrame(moveBefore)
+                        },
+                        getNext: ({
+                            moveLength,
+                            speed,
+                            transLen,
+                            cb
+                        }) => {
+                            const moveNext = () => {
+                                if (transLen > moveLength) {
+                                    transLen = this.getFunc('getMax')(transLen - speed, moveLength)
+                                    cb && cb(transLen)
+                                    window.requestAnimationFrame(moveNext)
+                                }
+                            }
+                            window.requestAnimationFrame(moveNext)
+                        }
+                    }
+                    return operate[type]
+                }
+
+                autoRun = ({
+                    currentIndex,
+                    oldIndex,
+                    direction,
+                    transform,
+                    speed = this.speed
+                }) => {
+                    const dealMap = {
+                        transLen: transform,
+                        speed: speed,
+                        cb: (transLen) => {
+                            this.updateDom({
+                                transform: transLen,
+                                currentIndex,
+                                oldIndex
+                            })
+                        }
+                    }
+                    if (direction) {
+                        this.getFunc(direction === 'left' ? 'getNext' : 'getBefore')({
+                            moveLength: 0,
+                            ...dealMap,
+                        })
+                    } else {
+                        const type = transform > 0
+                        this.getFunc(type ? 'getBefore' : 'getNext')({
+                            moveLength: type ? this.length : -this.length,
+                            ...dealMap,
+                        })
+                    }
+                }
+
+                updateDom = ({
+                    transform,
+                    hasMove = this.move,
+                    currentIndex = this.currentIndex,
+                    oldIndex = this.oldIndex,
+                    moveDom = this.dom,
+                    len = this.length
+                }) => {
+                    moveDom.setAttribute('style', `transform: translateX(${transform + hasMove}px);`)
+                    const up = 80 + Math.abs(transform / len) * 20
+                    const reduce = 100 - Math.abs(transform / len) * 20
+                    const oldDom = document.getElementById(`content-${oldIndex}`)
+                    const currentDom = document.getElementById(`content-${currentIndex}`)
+                    oldDom &&
+                        oldDom.setAttribute('style', `transform: scaleY(${this.getFunc('getMax')(reduce, 80).toFixed(5)}%);`)
+                    currentDom &&
+                        currentDom.setAttribute('style', `transform: scaleY(${this.getFunc('getMin')(up, 100).toFixed(5)}%);`)
+                }
+
+                getTouchPoint = (target) => {
+                    return {
+                        x: target.pageX,
+                        y: target.pageY
+                    }
+                }
+
+                touchstart = (e) => {
+                    this.isMove = true
+                    const {x, y} = this.getTouchPoint(e.targetTouches[0])
+                    this.point = {
+                        x: x,
+                        y: y
+                    }
+                    this.oldIndex = this.currentIndex
+                    this.startTransform = this.transform = 0
+                    this.move = -this.currentIndex * this.length
+                    this.dom.addEventListener('touchend', this.touchend, false)
+                    this.dom.addEventListener('touchmove', this.touchmove, false)
+                }
+
+
+                touchmove = (e) => {
+                    if (this.isMove) {
+                        const {x, y} = this.getTouchPoint(e.targetTouches[0])
+                        const currentMove = {
+                            x: x - this.point.x,
+                            y: y - this.point.y
+                        }
+                        this.transform = this.transform + currentMove.x
+                        if (this.currentIndex === this.oldIndex) {
+                            const add = this.transform < this.startTransform ? 1 : -1
+                            this.currentIndex = this.currentIndex + add
+                        }
+                        this.updateDom({
+                            transform: this.transform,
+                        })
+                        this.point = {
+                            x: x,
+                            y: y
+                        }
+                    }
+                }
+
+                touchend = (e) => {
+                    if (this.isMove) {
+                        this.dom.removeEventListener('touchend', this.touchend, false)
+                        this.dom.removeEventListener('touchmove', this.touchmove, false)
+                        if (this.currentIndex == -1 || this.currentIndex > this.cardLength) {
+                            this.autoRun({
+                                direction: this.currentIndex == -1 ? 'left' : 'right',
+                                currentIndex: this.currentIndex,
+                                oldIndex: this.oldIndex,
+                                transform: this.transform
+                            });
+                            this.currentIndex = this.oldIndex
+                            return
+                        }
+                        this.autoRun({
+                            currentIndex: this.currentIndex,
+                            oldIndex: this.oldIndex,
+                            transform: this.transform
+                        })
+                    }
+                }
+
+                goNext = () => {
+                    if (this.currentIndex < this.cardLength) {
+                        this.oldIndex = this.currentIndex
+                        this.move = -this.currentIndex * this.length
+                        this.currentIndex = this.currentIndex + 1
+                        this.autoRun({
+                            transform: 0,
+                            currentIndex: this.currentIndex,
+                            oldIndex: this.oldIndex
+                        })
+                    } else {
+                        this.currentIndex = this.oldIndex
+                    } 
+                }
+            }
+            const scroll = new Scroll('touch')
+            // setInterval(() => {
+            //     scroll.goNext()
+            // }, 1000)
+            function onGoNext() {
+                scroll.goNext()
+            }
+        </script>
+    </body>
+</html>
