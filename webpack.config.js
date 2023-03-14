@@ -3,6 +3,7 @@ const { VueLoaderPlugin } = require("vue-loader");
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const Manifest = require("./plugins/manifest");
 module.exports = {
   target: "web",
   entry: {
@@ -52,6 +53,7 @@ module.exports = {
       template: "./index.html",
       filename: "main.html",
       chunks: ["main"],
+      inject: 'body',
     }),
     new HtmlWebpackPlugin({
       template: "./index.html",
@@ -71,6 +73,7 @@ module.exports = {
         },
       ],
     }),
+    new Manifest(),
   ],
   devServer: {
     port: 1000,

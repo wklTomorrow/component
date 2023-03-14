@@ -1,5 +1,3 @@
-import A from "/src/react/components/a";
-import B from "/src/react/components/b";
 export const vue = [
   {
     name: "折叠面板",
@@ -21,20 +19,36 @@ export const vue = [
     path: "emoji",
     component: () => import("/src/vue/component/emoji/index.vue"),
   },
+  {
+    name: "拖拽",
+    path: "draggable",
+    component: () => import("/src/vue/component/draggable/index.vue"),
+  },
+  {
+    name: "testVue",
+    path: "test",
+    component: () => import("/src/vue/component/test/index.vue"),
+  },
 ];
 
 export const react = [
   {
     name: "a",
     path: "/react.html#/a",
-    component: A,
+    component: "a",
     route: "/a",
   },
   {
     name: "b",
     path: "/react.html#/b",
-    component: B,
+    component: "b",
     route: "/b",
+  },
+  {
+    name: "dragable",
+    path: "/react.html#/dragable",
+    component: "dragable",
+    route: "/dragable",
   },
 ];
 
@@ -69,6 +83,10 @@ export const components = [
 
 export const html = [
   {
+    name: "测试页面",
+    path: "/test.html",
+  },
+  {
     name: "swiper",
     path: "/swiper.html",
   },
@@ -99,6 +117,22 @@ export const html = [
   {
     name: "锚点",
     path: "/anchor.html",
+  },
+  {
+    name: "测试maskImage",
+    path: "/maskImage.html",
+  },
+  {
+    name: "love",
+    path: "/love.html",
+  },
+  {
+    name: "heart",
+    path: "/heart.html",
+  },
+  {
+    name: "drag",
+    path: "/drag.html",
   },
 ];
 
