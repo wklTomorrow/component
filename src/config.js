@@ -50,6 +50,12 @@ export const react = [
     component: "dragable",
     route: "/dragable",
   },
+  {
+    name: "webComponent",
+    path: "/react.html#/webComponent",
+    component: "webComponent",
+    route: "/webComponent",
+  },
 ];
 
 export const components = [
@@ -133,6 +139,10 @@ export const html = [
   {
     name: "drag",
     path: "/drag.html",
+  },
+  {
+    name: "webComponents",
+    path: "/webComponents.html",
   },
 ];
 

@@ -9,6 +9,7 @@ module.exports = {
   entry: {
     main: "./src/main.js",
     react: "./src/react/index",
+    test: './src/js/test.js'
   },
   output: {
     path: __dirname + "/dist",
@@ -66,6 +67,18 @@ module.exports = {
         {
           from: "src/html",
           to: "./html",
+          globOptions: {
+            dot: true,
+            gitignore: false,
+          },
+        },
+      ],
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "src/js",
+          to: "./js",
           globOptions: {
             dot: true,
             gitignore: false,
