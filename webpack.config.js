@@ -9,7 +9,7 @@ module.exports = {
   entry: {
     main: "./src/main.js",
     react: "./src/react/index",
-    test: './src/js/test.js'
+    test: "./src/js/test.js",
   },
   output: {
     path: __dirname + "/dist",
@@ -22,7 +22,7 @@ module.exports = {
         use: ["vue-loader"],
       },
       {
-        test: /\.jsx$/,
+        test: /\.jsx|\.tsx$/,
         use: {
           loader: "babel-loader",
           options: {
@@ -46,7 +46,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx", ".json"],
+    extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -54,7 +54,7 @@ module.exports = {
       template: "./index.html",
       filename: "main.html",
       chunks: ["main"],
-      inject: 'body',
+      inject: "body",
     }),
     new HtmlWebpackPlugin({
       template: "./index.html",

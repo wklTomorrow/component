@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>列表拖拽</title>
+	<style type="text/css">
+		li {
+			list-style-type: none;
+			padding: 10px;
+			margin: 10px;
+			border: 1px solid #ccc;
+			background-color: #fff;
+			cursor: move;
+		}
+		ul {
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+	<script type="text/javascript">
+		function dragstart_handler(event) {
+			event.dataTransfer.setData("text/plain", event.target.id);
+			event.currentTarget.style.backgroundColor = "yellow";
+		}
+
+		function dragover_handler(event) {
+			event.preventDefault();
+			event.currentTarget.style.border = "2px dashed #ccc";
+		}
+
+		function drop_handler(event) {
+			event.preventDefault();
+			const data = event.dataTransfer.getData("text/plain");
+			const element = document.getElementById(data);
+			event.currentTarget.appendChild(element);
+			event.currentTarget.style.border = "none";
+			element.style.backgroundColor = "#fff";
+		}
+	</script>
+</head>
+<body>
+	<ul>
+		<li id="item1" draggable="true" ondragstart="dragstart_handler(event)">Item 1</li>
+		<li id="item2" draggable="true" ondragstart="dragstart_handler(event)">Item 2</li>
+		<li id="item3" draggable="true" ondragstart="dragstart_handler(event)">Item 3</li>
+		<li id="item4" draggable="true" ondragstart="dragstart_handler(event)">Item 4</li>
+		<li id="item5" draggable="true" ondragstart="dragstart_handler(event)">Item 5</li>
+	</ul>
+
+	<script type="text/javascript">
+		const list = document.querySelector('ul');
+		list.addEventListener('dragover', dragover_handler);
+		list.addEventListener('drop', drop_handler);
+	</script>
+</body>
+</html>
