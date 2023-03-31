@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>录音与播放 Demo</title>
+  </head>
+  <body>
+    <button id="recordButton">开始录音</button>
+    <button id="playButton" disabled>播放录音</button>
+
+    <script>
+      // 获取按钮
+      const recordButton = document.getElementById("recordButton");
+      const playButton = document.getElementById("playButton");
+
+      // 音频相关变量
+      let chunks = [];
+      let mediaRecorder = null;
+      let audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      let audioBuffer = null;
+
+      // 处理录音数据
+      function handleDataAvailable(event) {
+        console.log(event);
+        chunks.push(event.data);
+      }
+
+      // 开始录音
+      recordButton.addEventListener("click", () => {
+        // 获取麦克风输入
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            // 创建 MediaRecorder 对象
+            mediaRecorder = new MediaRecorder(stream);
+
+            // 处理录音数据
+            mediaRecorder.addEventListener(
+              "dataavailable",
+              handleDataAvailable
+            );
+
+            // 开始录音
+            mediaRecorder.start();
+
+            // 按钮状态
+            // recordButton.disabled = true;
+            // playButton.disabled = true;
+          })
+          .catch((err) => {
+            console.error("获取麦克风输入失败：", err);
+          });
+      });
+
+      // 停止录音并播放录音
+      playButton.addEventListener("click", () => {
+        // 停止录音
+        mediaRecorder.stop();
+
+        // 播放录音
+        audioBuffer = null;
+        audioContext.decodeAudioData(new Blob(chunks), (buffer) => {
+          audioBuffer = buffer;
+          const source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(audioContext.destination);
+          source.start();
+
+          // 按钮状态
+          recordButton.disabled = false;
+          playButton.disabled = true;
+        });
+
+        // 清空录音数据
+        chunks = [];
+      });
+
+      // MediaRecorder 停止事件
+      mediaRecorder?.addEventListener("stop", () => {
+        playButton.disabled = false;
+      });
+    </script>
+  </body>
+</html>

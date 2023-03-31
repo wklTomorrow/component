@@ -29,6 +29,11 @@ export const vue = [
     path: "test",
     component: () => import("/src/vue/component/test/index.vue"),
   },
+  {
+    name: "vuex",
+    path: "vuex",
+    component: () => import("/src/vue/component/vuex/index.vue"),
+  },
 ];
 
 export const react = [
@@ -91,6 +96,10 @@ export const html = [
   {
     name: "测试页面",
     path: "/test.html",
+  },
+  {
+    name: "tinyVue",
+    path: "/vue.html",
   },
   {
     name: "swiper",

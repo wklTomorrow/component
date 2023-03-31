@@ -15,11 +15,26 @@ module.exports = {
     path: __dirname + "/dist",
     filename: "[name]/index.js",
   },
+  resolveLoader: {
+    modules: ["node_modules", "./loaders"],
+  },
   module: {
     rules: [
       {
         test: /\.vue$/,
         use: ["vue-loader"],
+      },
+      {
+        test: /\.vue$/,
+        enforce: "pre",
+        use: ["inject-vue"],
+      },
+      {
+        test: /\.ts$/,
+        use: {
+          loader: "ts-loader",
+          options: {},
+        },
       },
       {
         test: /\.jsx|\.tsx$/,
@@ -37,7 +52,16 @@ module.exports = {
       },
       {
         test: /\.less$/,
+        exclude: /\.module\.less$/,
         use: ["style-loader", "css-loader", "less-loader"],
+      },
+      {
+        test: /\.module\.less$/,
+        use: [
+          { loader: "style-loader" },
+          { loader: "css-loader", options: { modules: true } },
+          { loader: "less-loader" },
+        ],
       },
       {
         test: /\.png$/,

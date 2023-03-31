@@ -2,7 +2,7 @@ class Manifest {
   constructor() {}
   apply(compiler) {
     compiler.hooks.done.tap("Manifest", (stats) => {
-      console.log(stats);
+      // console.log(stats);
     });
   }
 }
