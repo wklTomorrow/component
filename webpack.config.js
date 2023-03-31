@@ -3,15 +3,20 @@ const { VueLoaderPlugin } = require("vue-loader");
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const Manifest = require("./plugins/manifest");
 module.exports = {
   target: "web",
   entry: {
     main: "./src/main.js",
     react: "./src/react/index",
+    test: "./src/js/test.js",
   },
   output: {
     path: __dirname + "/dist",
     filename: "[name]/index.js",
+  },
+  resolveLoader: {
+    modules: ["node_modules", "./loaders"],
   },
   module: {
     rules: [
@@ -20,7 +25,19 @@ module.exports = {
         use: ["vue-loader"],
       },
       {
-        test: /\.jsx$/,
+        test: /\.vue$/,
+        enforce: "pre",
+        use: ["inject-vue"],
+      },
+      {
+        test: /\.ts$/,
+        use: {
+          loader: "ts-loader",
+          options: {},
+        },
+      },
+      {
+        test: /\.jsx|\.tsx$/,
         use: {
           loader: "babel-loader",
           options: {
@@ -35,7 +52,16 @@ module.exports = {
       },
       {
         test: /\.less$/,
+        exclude: /\.module\.less$/,
         use: ["style-loader", "css-loader", "less-loader"],
+      },
+      {
+        test: /\.module\.less$/,
+        use: [
+          { loader: "style-loader" },
+          { loader: "css-loader", options: { modules: true } },
+          { loader: "less-loader" },
+        ],
       },
       {
         test: /\.png$/,
@@ -44,7 +70,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx", ".json"],
+    extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -52,6 +78,7 @@ module.exports = {
       template: "./index.html",
       filename: "main.html",
       chunks: ["main"],
+      inject: "body",
     }),
     new HtmlWebpackPlugin({
       template: "./index.html",
@@ -71,6 +98,19 @@ module.exports = {
         },
       ],
     }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "src/js",
+          to: "./js",
+          globOptions: {
+            dot: true,
+            gitignore: false,
+          },
+        },
+      ],
+    }),
+    new Manifest(),
   ],
   devServer: {
     port: 1000,

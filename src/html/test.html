@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      .container {
+        height: 100px;
+        display: flex;
+      }
+      .item {
+        flex: 1;
+      }
+      .item:nth-child(odd) {
+        background-color: lightpink;
+      }
+      .item:nth-child(even) {
+        background-color: lightgray;
+      }
+      .m-r-20 {
+        margin-right: 20px;
+      }
+      .p-r-20 {
+        padding-right: 20px;
+      }
+      .example[data-v-f3f3eg9] {
+        color: red;
+      }
+      .my-input {
+        border: 1px solid lightpink;
+      }
+      input {
+        flex: 1;
+        box-sizing: border-box;
+        border: none;
+        outline: none;
+        caret-color: #e06300;
+      }
+      input::placeholder {
+        color: red;
+      }
+      .label {
+        color: blue;
+        font-size: 14px;
+      }
+      .code .label {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="item m-r-20 p-r-20"></div>
+      <div class="item m-r-20"></div>
+      <div class="item m-r-20"></div>
+      <div class="item m-r-20"></div>
+      <div class="item"></div>
+    </div>
+    <div class="example" data-v-f3f3eg9>hello world</div>
+    <div class="my-input">
+      <input placeholder="hello world" />
+    </div>
+    <div class="code">
+      <span class="label">test</span>
+    </div>
+    <div id="main"></div>
+    <!-- 用的是打包后的页面访问 -->
+    <script src="../test/index.js"></script>
+    <!-- 打包后访问 -->
+    <!-- <script src="../js/tiny.react.js"></script> -->
+  </body>
+</html>

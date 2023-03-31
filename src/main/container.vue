@@ -6,7 +6,7 @@
           :key="index"
           class="items"
           @click="handleClick(item)"
-          :class="{ active: active === item.name }"
+          :class="{ active: active === item.name || active === item.path }"
         >
           {{ item.name }}
         </div>

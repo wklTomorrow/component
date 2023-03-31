@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+  <body>
+    <div id="app"></div>
+    <order-card
+      label="hello world"
+      handleCb="handleCb(params)"
+      onclick="handleClick()"
+    ></order-card>
+    <script>
+      function handleCb(params) {
+        console.log(params);
+      }
+      function handleClick() {
+        console.log("click");
+      }
+    </script>
+    <script src="../js/webComponent.js"></script>
+  </body>
+</html>
