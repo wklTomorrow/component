@@ -153,6 +153,10 @@ export const html = [
     name: "webComponents",
     path: "/webComponents.html",
   },
+  {
+    name: "H5Tab",
+    path: "/scrollTab.html",
+  },
 ];
 
 export default {

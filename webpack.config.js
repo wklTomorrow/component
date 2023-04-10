@@ -4,6 +4,7 @@ const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Manifest = require("./plugins/manifest");
+const TerserPlugin = require("terser-webpack-plugin");
 module.exports = {
   target: "web",
   entry: {
@@ -112,6 +113,10 @@ module.exports = {
     }),
     new Manifest(),
   ],
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  },
   devServer: {
     port: 1000,
     hot: true,
