@@ -5,6 +5,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Manifest = require("./plugins/manifest");
 const TerserPlugin = require("terser-webpack-plugin");
+const px2vw = require("postcss-px-to-viewport");
 module.exports = {
   target: "web",
   entry: {
@@ -49,12 +50,59 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: [
+          "style-loader",
+          "css-loader",
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: function () {
+                  return [
+                    px2vw({
+                      viewportWidth: 750, // 视窗的宽度，对应设计稿的宽度
+                      // viewportHeight: 1334, // 视窗的高度，对应设计稿的高度
+                      unitPrecision: 3, // 指定单位转换后的保留小数位数
+                      viewportUnit: "vw", // 转换成的视口单位，建议使用vw
+                      selectorBlackList: [".ignore", ".hairlines"], // 需要忽略的样式选择器，保留px单位
+                      minPixelValue: 1, // 不小于1px的不转换为视窗单位
+                      mediaQuery: false, // 允许在媒体查询中转换px
+                    }),
+                  ];
+                },
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.less$/,
         exclude: /\.module\.less$/,
-        use: ["style-loader", "css-loader", "less-loader"],
+        use: [
+          "style-loader",
+          "css-loader",
+          "less-loader",
+          // {
+          //   loader: "postcss-loader",
+          //   options: {
+          //     postcssOptions: {
+          //       plugins: function () {
+          //         return [
+          //           px2vw({
+          //             viewportWidth: 750, // 视窗的宽度，对应设计稿的宽度
+          //             // viewportHeight: 1334, // 视窗的高度，对应设计稿的高度
+          //             unitPrecision: 3, // 指定单位转换后的保留小数位数
+          //             viewportUnit: "vw", // 转换成的视口单位，建议使用vw
+          //             selectorBlackList: [".ignore", ".hairlines"], // 需要忽略的样式选择器，保留px单位
+          //             minPixelValue: 1, // 不小于1px的不转换为视窗单位
+          //             mediaQuery: false, // 允许在媒体查询中转换px
+          //           }),
+          //         ];
+          //       },
+          //     },
+          //   },
+          // },
+        ],
       },
       {
         test: /\.module\.less$/,
@@ -62,6 +110,26 @@ module.exports = {
           { loader: "style-loader" },
           { loader: "css-loader", options: { modules: true } },
           { loader: "less-loader" },
+          // {
+          //   loader: "postcss-loader",
+          //   options: {
+          //     postcssOptions: {
+          //       plugins: function () {
+          //         return [
+          //           px2vw({
+          //             viewportWidth: 750, // 视窗的宽度，对应设计稿的宽度
+          //             // viewportHeight: 1334, // 视窗的高度，对应设计稿的高度
+          //             unitPrecision: 3, // 指定单位转换后的保留小数位数
+          //             viewportUnit: "vw", // 转换成的视口单位，建议使用vw
+          //             selectorBlackList: [".ignore", ".hairlines"], // 需要忽略的样式选择器，保留px单位
+          //             minPixelValue: 1, // 不小于1px的不转换为视窗单位
+          //             mediaQuery: false, // 允许在媒体查询中转换px
+          //           }),
+          //         ];
+          //       },
+          //     },
+          //   },
+          // },
         ],
       },
       {

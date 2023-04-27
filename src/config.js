@@ -1,7 +1,7 @@
 export const vue = [
   {
     name: "折叠面板",
-    path: "expand",
+    path: "ExpandCollapse",
     component: () => import("/src/vue/component/ExpandCollapse/index.vue"),
   },
   {
@@ -33,6 +33,16 @@ export const vue = [
     name: "vuex",
     path: "vuex",
     component: () => import("/src/vue/component/vuex/index.vue"),
+  },
+  {
+    name: "expand",
+    path: "expand",
+    component: () => import("/src/vue/component/expand/index.vue"),
+  },
+  {
+    name: "vue",
+    path: "vue",
+    component: () => import("/src/vue/component/vue/index.vue"),
   },
 ];
 
@@ -156,6 +166,10 @@ export const html = [
   {
     name: "H5Tab",
     path: "/scrollTab.html",
+  },
+  {
+    name: "waterfall(固定高度)",
+    path: "/waterfall.html",
   },
 ];
 

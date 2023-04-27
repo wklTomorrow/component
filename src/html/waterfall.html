@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    section {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 5px;
+    }
+    section::after {
+      content: "";
+      flex-grow: 99999;
+    }
+    .img-wrapper {
+      flex-grow: 1;
+      margin: 5px;
+      position: relative;
+      overflow: hidden;
+    }
+    .img-wrapper img {
+      height: 170px;
+      min-width: 100%;
+      object-fit: cover;
+    }
+    .info {
+      position: absolute;
+      bottom: 4px;
+      color: #ffffff;
+      left: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.3);
+      line-height: 44px;
+      height: 0px;
+    }
+  </style>
+  <body>
+    <div>前端实现图片的瀑布流展示</div>
+    <section>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=1819248061,230866778&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=4036010509,3445021118&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=963301259,1982396977&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=1575628574,1150213623&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=737555197,308540855&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=91673060,7145840&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=2291349828,4144427007&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=1297102096,3476971300&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=4283365501,347124022&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=4240641596,3235181048&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+      <div class="img-wrapper">
+        <img
+          src="https://t7.baidu.com/it/u=3078321260,3840584311&fm=193&f=GIF"
+          alt=""
+        />
+        <div class="info">
+          <span class="size">helloworld</span>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
