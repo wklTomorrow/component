@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+  <body>
+    <div>签名</div>
+    <canvas id="signatureCanvas" width="500" height="300"></canvas>
+    <script>
+      var signatureCanvas = document.getElementById("signatureCanvas");
+      var ctx = signatureCanvas.getContext("2d");
+      signatureCanvas.addEventListener("mousedown", startDrawing);
+      signatureCanvas.addEventListener("mousemove", draw);
+      signatureCanvas.addEventListener("mouseup", endDrawing);
+      function startDrawing(event) {
+        isDrawing = true;
+        lastX = event.offsetX;
+        lastY = event.offsetY;
+      }
+
+      function draw(event) {
+        if (!isDrawing) return;
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(event.offsetX, event.offsetY);
+        ctx.stroke();
+        lastX = event.offsetX;
+        lastY = event.offsetY;
+      }
+
+      function endDrawing(event) {
+        isDrawing = false;
+      }
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    </script>
+  </body>
+</html>

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <script>
       (function () {
         window.adapt = function (designWidth, rem2px) {
@@ -46,11 +50,59 @@
         };
         var designWidth = 375,
           rem2px = 100;
-        // window.adapt(designWidth, rem2px);
+        window.adapt(designWidth, rem2px);
       })();
     </script>
+    <script>
+      (function () {
+        var designWidth = 375,
+          rem2px = 100;
+        function setRfs() {
+          document.documentElement.style.fontSize =
+            Math.min(
+              110.4,
+              Math.max(
+                (window.innerWidth / designWidth) * rem2px,
+                (document.documentElement.clientWidth / designWidth) * rem2px,
+                85.3333
+              )
+            ) + "px";
+        }
+        setRfs();
+        var tid;
+        window.addEventListener(
+          "resize",
+          function () {
+            clearTimeout(tid);
+            tid = setTimeout(setRfs, 300);
+          },
+          false
+        );
+      })();
+    </script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .h2 {
+        font-size: 0.18rem;
+        /* font-size: 18px; */
+      }
+      .h3 {
+        font-size: 0.16rem;
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <h2 class="h2">rem 布局相关</h2>
+    <h2 style="font-size: 4.8vw;">rem 布局相关</h2>
+    <!-- <div>
+      <h3 class="h3">pc端展示</h3>
+    </div>
+    <div>
+      <h3 class="h3">移动端展示</h3>
+    </div> -->
   </body>
 </html>

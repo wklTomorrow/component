@@ -171,6 +171,30 @@ export const html = [
     name: "waterfall(固定高度)",
     path: "/waterfall.html",
   },
+  {
+    name: "移动端动态布局",
+    path: "/rem.html",
+  },
+  {
+    name: "签个名",
+    path: "/signature.html",
+  },
+  {
+    name: "editable编辑器",
+    path: "/edit.html",
+  },
+  {
+    name: "kakao",
+    path: "/kakao.html",
+  },
+  {
+    name: "不固定高度的虚拟列表",
+    path: "/virtual.html",
+  },
+  {
+    name: "反向滚动的不固定高度的虚拟列表",
+    path: "/virtualReverse.html",
+  },
 ];
 
 export default {

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>不定高度的虚拟列表</title>
+  </head>
+  <body>
+    <style>
+      .list {
+        height: 400px;
+        width: 300px;
+        outline: 1px solid seagreen;
+        overflow-x: hidden;
+      }
+      .list-item {
+        outline: 1px solid red;
+        outline-offset: -2px;
+        background-color: #fff;
+      }
+    </style>
+    <div class="list">
+      <div class="list-inner"></div>
+    </div>
+    <script>
+      // 快速移动滚动条，中间未渲染部分，导致渲染后高度偏移差问题
+      // 参考链接：https://lkangd.com/post/virtual-infinite-scroll/
+      // const throttle = (callback) => {
+      //     let isThrottled = false;
+      //     return (...args)=> {
+      //         if (isThrottled) return;
+      //             callback.apply(this, args);
+      //         isThrottled = true;
+      //         requestAnimationFrame(() => {
+      //             isThrottled = false;
+      //         });
+      //     }
+      // }
+
+      // function run(task, taskEndCallback) {
+      //     let oldDate = Date.now();
+      //     requestAnimationFrame(() => {
+      //         let now = Date.now();
+      //         console.log(now - oldDate)
+      //         if(now - oldDate <= 16.5) {
+      //             const result = task();
+      //             taskEndCallback(result);
+      //         }else {
+      //             run(task, render);
+      //         }
+      //     })
+      // }
+
+      // function debounce(callback) {
+      //     let timerId;
+      //     return function() {
+      //         if (timerId) {
+      //             cancelAnimationFrame(timerId);
+      //         }
+      //         timerId = requestAnimationFrame(() => {
+      //             callback.apply(this, arguments);
+      //         });
+      //     };
+      // }
+
+      function throttle(callback) {
+        let requestId;
+        return (...args) => {
+          if (requestId) {
+            return;
+          }
+          requestId = requestAnimationFrame(() => {
+            callback.apply(this, args);
+            requestId = null;
+          });
+        };
+      }
+
+      const randomIncludes = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+      };
+
+      const clientHeight = 400;
+      const listEl = document.querySelector(".list");
+      const listInner = document.querySelector(".list-inner");
+
+      function initAutoSizeVirtualList(props) {
+        const cache = [];
+        window.cache = cache;
+        let oldFirstIndex = 0;
+        const { listEl, listInner, minSize = 30, clientHeight, items } = props;
+        // 默认情况下可见数量
+        const viewCount = Math.ceil(clientHeight / minSize);
+        // 缓存区数量
+        const bufferSize = 6;
+        listEl.style.cssText += `height:${clientHeight}px;overflow-x: hidden`;
+
+        // const findItemIndex = (startIndex, scrollTop) => {
+        //     scrollTop === undefined && (
+        //         scrollTop = startIndex,
+        //         startIndex = 0
+        //     )
+        //     let totalSize = 0;
+        //     for(let i = startIndex; i < cache.length; i++) {
+        //         totalSize += cache[i].height;
+        //         if(totalSize >= scrollTop || i == cache.length - 1) {
+        //             return i;
+        //         }
+        //     }
+        //     return startIndex;
+        // }
+
+        // 二分查询优化
+        const findItemIndex = (scrollTop) => {
+          let low = 0;
+          let high = cache.length - 1;
+          while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const { top, bottom } = cache[mid];
+            if (scrollTop >= top && scrollTop <= bottom) {
+              high = mid;
+              break;
+            } else if (scrollTop > bottom) {
+              low = mid + 1;
+            } else if (scrollTop < top) {
+              high = mid - 1;
+            }
+          }
+          return high;
+        };
+
+        // 更新每个item的位置信息
+        const upCellMeasure = () => {
+          const listItems = listInner.querySelectorAll(".list-item");
+          if (listItems.length === 0) {
+            return;
+          }
+          const firstItem = listItems[0];
+          const firstIndex = +firstItem.dataset.index;
+          const lastIndex = +listItems[listItems.length - 1].dataset.index;
+          // 解决向上缓慢滚动时，高度存在的偏移差问题，非常重要
+          if (firstIndex < oldFirstIndex && !cache[firstIndex].isUpdate) {
+            const dHeight =
+              firstItem.getBoundingClientRect().height -
+              cache[firstIndex].height;
+            listEl.scrollTop += dHeight;
+          }
+          [...listItems].forEach((listItem) => {
+            const rectBox = listItem.getBoundingClientRect();
+            const index = listItem.dataset.index;
+            const prevItem = cache[index - 1];
+            const top = prevItem ? prevItem.bottom : 0;
+            Object.assign(cache[index], {
+              height: rectBox.height,
+              top,
+              bottom: top + rectBox.height,
+              isUpdate: true,
+            });
+          });
+          // 切记一定要更新未渲染的listItem的top值
+          for (let i = lastIndex + 1; i < cache.length; i++) {
+            const prevItem = cache[i - 1];
+            const top = prevItem ? prevItem.bottom : 0;
+            Object.assign(cache[i], {
+              top,
+              bottom: top + cache[i].height,
+            });
+          }
+          oldFirstIndex = firstIndex;
+        };
+
+        const getTotalSize = () => {
+          return cache[cache.length - 1].bottom;
+        };
+        const getStartOffset = (startIndex) => {
+          return cache[startIndex].top;
+        };
+        const getEndOffset = (endIndex) => {
+          return cache[endIndex].bottom;
+        };
+
+        // 缓存位置信息
+        items.forEach((item, i) => {
+          cache.push({
+            index: i,
+            height: minSize,
+            top: minSize * i,
+            bottom: minSize * i + minSize,
+            isUpdate: false,
+          });
+        });
+
+        return function autoSizeVirtualList(renderItem, rendered) {
+          const startIndex = findItemIndex(listEl.scrollTop);
+          const endIndex = startIndex + viewCount;
+          // const visiblityEndIndex = findItemIndex(clientHeight + listEl.scrollTop);
+          const startBufferIndex = Math.max(0, startIndex - bufferSize);
+          const endBufferIndex = Math.min(
+            items.length - 1,
+            endIndex + bufferSize
+          );
+          const renderItems = [];
+          for (let i = startBufferIndex; i <= endBufferIndex; i++) {
+            renderItems.push(renderItem(items[i], cache[i]));
+          }
+          const startOffset = getStartOffset(startBufferIndex);
+          const endOffset = getTotalSize() - getEndOffset(endBufferIndex);
+          rendered(renderItems);
+          // 渲染完成后，才更新缓存的高度信息
+          upCellMeasure();
+          listInner.style.setProperty(
+            "padding",
+            `${startOffset}px 0 ${endOffset}px 0`
+          );
+        };
+      }
+
+      // 模拟1万条数据
+      const count = 10000;
+      const items = Array.from({ length: count }).map((item, i) => ({
+        name: `item ${i}`,
+        height: randomIncludes(40, 120),
+      }));
+      const autoSizeVirtualList = initAutoSizeVirtualList({
+        listEl,
+        listInner,
+        clientHeight,
+        items,
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        autoSizeVirtualList(
+          (item, rectBox) => {
+            return `<div class="list-item" data-index="${rectBox.index}" style="height:${item.height}px">${item.name}</div>`;
+          },
+          (renderItems) => {
+            listInner.innerHTML = renderItems.join("");
+          }
+        );
+      });
+
+      listEl.addEventListener(
+        "scroll",
+        throttle(() => {
+          autoSizeVirtualList(
+            (item, rectBox) => {
+              return `<div class="list-item" data-index="${rectBox.index}" style="height:${item.height}px">${item.name}</div>`;
+            },
+            (renderItems) => {
+              listInner.innerHTML = renderItems.join("");
+            }
+          );
+        })
+      );
+    </script>
+  </body>
+</html>

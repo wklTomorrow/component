@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>编辑器</title>
+    <style>
+      .edit {
+        box-sizing: border-box;
+        height: 400px;
+        width: 100%;
+        border: none;
+      }
+      .line {
+        color: red;
+        line-height: 20px;
+        height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>编辑器</h1>
+    <div class="edit" id="edit" contenteditable="true"></div>
+    <button onclick="hangeGetContent()">获取内容</button>
+    <button onclick="addImage()">添加图片</button>
+    <script>
+      const utils = {
+        // 获取光标位置
+        getCursorPosition(dom) {
+          try {
+            let selection = window.getSelection();
+            let range = selection.getRangeAt(0);
+            let preSelectionRange = range.cloneRange();
+            preSelectionRange.selectNodeContents(dom);
+            preSelectionRange.setEnd(range.startContainer, range.startOffset);
+            return {
+              len: preSelectionRange.toString().length,
+              curDom: preSelectionRange.endContainer,
+              end: preSelectionRange.endOffset,
+              preDom: preSelectionRange.endContainer.parentElement,
+            };
+          } catch (e) {}
+          return {
+            len: -1,
+            preDom: null,
+          };
+        },
+        // 设置光标位置
+        setCursorPosition(dom, index, position) {
+          let range = document.createRange();
+          let sel = window.getSelection();
+          range.setStart(dom.childNodes[index], position);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+          dom.focus();
+        },
+      };
+      class Edit {
+        constructor({ el, value }) {
+          this.line = 0;
+          this.dom = document.getElementById(el);
+          this.addInitValue(value);
+          this.dom.addEventListener("mousedown", (e) => {
+            if (!this.dom.childNodes.length) {
+              this.addLine(false);
+              event.preventDefault();
+            }
+          });
+          this.dom.addEventListener("keydown", (event) => {
+            if (event.keyCode === 13) {
+              event.preventDefault();
+              const { len, preDom, curDom, end } = utils.getCursorPosition(
+                this.dom
+              );
+              console.log(len, preDom, preDom.innerText.slice(end), end);
+              this.addLine(true, preDom.innerText.slice(end));
+              preDom.innerText = preDom.innerText.slice(0, end);
+            }
+          });
+        }
+        addInitValue(value) {
+          const list = value.split("\n") || [];
+          list.forEach((val) => {
+            this.addLine(false, val);
+          });
+        }
+        addLine(focus = true, val = "") {
+          const div = document.createElement("div");
+          div.id = "text";
+          div.setAttribute("data-type", `line-${this.line}`);
+          div.className = "line";
+          div.innerText = val;
+          this.dom.appendChild(div);
+          this.line = this.line + 1;
+          if (focus) {
+            setTimeout(() => {
+              const { len, preDom } = utils.getCursorPosition(this.dom);
+              if (!preDom) {
+                utils.setCursorPosition(this.dom, 0, 0);
+              } else {
+                const index = [...this.dom.childNodes].findIndex(
+                  (ele) =>
+                    preDom.getAttribute("data-type") ===
+                    ele.getAttribute("data-type")
+                );
+                utils.setCursorPosition(this.dom, index + 1, 0);
+              }
+            }, 50);
+          }
+        }
+      }
+
+      function hangeGetContent() {
+        const dom = document.getElementById("edit");
+        console.log(dom.innerHTML);
+        console.log(dom.innerText);
+      }
+      function addImage() {
+        const img = new Image();
+        img.src =
+          "https://conan-online.cretacontent.com/conan-oss-resource/bPr2UPVm8ZaozLXNjpNNdkn3F46pxu2CBhhK.jpeg";
+        img.onload = () => {
+          const { height, width } = img;
+          const dom = document.getElementById("edit");
+          const imgTag = document.createElement("img");
+          imgTag.src = img.src;
+          imgTag.setAttribute("style", `height: ${height};width: ${width};`);
+          dom.appendChild(imgTag);
+        };
+      }
+
+      new Edit({
+        el: "edit",
+        value: "ss\nssss",
+      });
+    </script>
+  </body>
+</html>

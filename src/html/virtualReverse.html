@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>反向滚动的不定高度的虚拟列表</title>
+  </head>
+  <body>
+    <style>
+      .wrap {
+        height: 400px;
+        width: 300px;
+        position: relative;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      .list {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 400px;
+        width: 300px;
+        outline: 1px solid seagreen;
+        position: relative;
+        overflow: auto;
+        z-index: 99;
+      }
+      .bg {
+        width: 100%;
+      }
+      .content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1000px;
+        overflow: auto;
+        display: flex;
+        flex-direction: column-reverse;
+      }
+      .list-inner {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column-reverse;
+      }
+      .item-item {
+        outline: 1px solid red;
+        outline-offset: -2px;
+        background-color: #fff;
+      }
+      .bar {
+        position: absolute;
+        right: 0;
+        width: 10px;
+        background-color: red;
+        border-radius: 5px;
+        z-index: 999;
+        cursor: pointer;
+      }
+    </style>
+    <div class="wrap">
+      <div class="bar"></div>
+      <div class="list">
+        <div class="bg"></div>
+      </div>
+      <div class="content">
+        <div class="list-inner"></div>
+      </div>
+    </div>
+    <script>
+      const randomIncludes = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+      };
+      const throttle = (fn) => {
+        let timer = null;
+        return function (...args) {
+          if (timer) {
+            return;
+          }
+          timer = window.requestAnimationFrame(() => {
+            fn.call(this, ...args);
+            timer = null;
+          });
+        };
+      };
+      const findStartByIndex = (list, target) => {
+        let low = 0;
+        let high = list.length - 1;
+        while (low <= high) {
+          const mid = Math.floor((low + high) / 2);
+          const { top, bottom } = list[mid];
+          if (target >= top && target <= bottom) {
+            high = mid;
+            break;
+          } else if (target < top) {
+            high = mid - 1;
+          } else if (target > bottom) {
+            low = mid + 1;
+          }
+        }
+        return high;
+      };
+      const init = () => {
+        const listEl = document.getElementsByClassName("list")[0];
+        const listInnerEl = document.getElementsByClassName("list-inner")[0];
+        const bgEl = document.getElementsByClassName("bg")[0];
+        const contentEl = document.getElementsByClassName("content")[0];
+        const barEl = document.getElementsByClassName("bar")[0];
+        const offset = 6;
+        const clientHeight = 400;
+        const minSize = 30;
+        const domList = [];
+        const initAutoSizeVirtualList = (props) => {
+          let oldFirstIndex = 0;
+          const cache = [];
+          window.cache = cache;
+          const { itemList, offset, clientHeight, minSize } = props;
+          const viewCount = Math.floor(clientHeight / minSize);
+          for (let i = 0; i < itemList.length; i++) {
+            cache.push({
+              index: i,
+              height: minSize,
+              top: minSize * i,
+              bottom: minSize * i + minSize,
+              isUpdate: false,
+            });
+          }
+          bgEl.style = `height: ${cache[cache.length - 1].bottom}px;`;
+
+          const updateCells = () => {
+            const listItems = listInnerEl.querySelectorAll(".item-item");
+            if (listItems.length === 0) {
+              return;
+            }
+            const lastIndex = +listItems[listItems.length - 1].dataset.index;
+            [...listItems].forEach((listItem) => {
+              const rectBox = listItem.getBoundingClientRect();
+              const index = listItem.dataset.index;
+              const prevItem = cache[index - 1];
+              const top = prevItem ? prevItem.bottom : 0;
+              Object.assign(cache[index], {
+                height: rectBox.height,
+                top,
+                bottom: top + rectBox.height,
+                isUpdate: true,
+              });
+            });
+            for (let i = lastIndex + 1; i < cache.length; i++) {
+              const prevItem = cache[i - 1];
+              const top = prevItem ? prevItem.bottom : 0;
+              Object.assign(cache[i], {
+                top,
+                bottom: top + cache[i].height,
+              });
+            }
+          };
+          return function autoSizeVirtualList({
+            renderItem,
+            rendered,
+            renderScrollBar,
+          }) {
+            const scrollHeight = listEl.scrollHeight;
+            const scrollTop = listEl.scrollTop;
+            renderScrollBar({
+              allHeight: listEl.scrollHeight,
+              height: listEl.offsetHeight,
+              top: scrollTop,
+            });
+            const startIndex = findStartByIndex(cache, scrollTop);
+            const endIndex = startIndex + viewCount;
+            const startBufferIndex = Math.max(0, startIndex - offset);
+            const endBufferIndex = Math.min(
+              itemList.length - 1,
+              endIndex + offset
+            );
+            const renderItems = [];
+            for (let i = startBufferIndex; i <= endBufferIndex; i++) {
+              renderItems.push(renderItem(itemList[i], cache[i]));
+            }
+            rendered(renderItems);
+            updateCells();
+            const bottom = cache[cache.length - 1].bottom;
+            bgEl.style = `height: ${bottom}px;`;
+            listInnerEl.style = `bottom: -${scrollTop}px;padding-bottom: ${
+              cache[startBufferIndex].top
+            }px;padding-top: ${bottom - cache[endBufferIndex].bottom}px`;
+          };
+        };
+
+        const itemList = Array.from({ length: 100 }, (_, index) => ({
+          name: `列表项-${index}`,
+          height: randomIncludes(40, 100),
+        }));
+
+        const autoSizeVirtualList = initAutoSizeVirtualList({
+          itemList,
+          offset,
+          clientHeight,
+          minSize,
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+          autoSizeVirtualList({
+            renderItem: (item, cache) => {
+              return `<div class="item-item" data-index=${cache.index} style="height: ${item.height}px;">${item.name}</div>`;
+            },
+            rendered: (list) => {
+              listInnerEl.innerHTML = list.join("");
+            },
+            renderScrollBar: ({ allHeight, height, top }) => {
+              const target = (height * height) / allHeight;
+              const bottom = (height * top) / allHeight;
+              barEl.style = `height: ${target}px;bottom: ${bottom}px;`;
+            },
+          });
+        });
+
+        listEl.addEventListener(
+          "scroll",
+          throttle(() => {
+            autoSizeVirtualList({
+              renderItem: (item, cache) => {
+                return `<div class="item-item" data-index=${cache.index} style="height: ${item.height}px;">${item.name}</div>`;
+              },
+              rendered: (list) => {
+                listInnerEl.innerHTML = list.join("");
+              },
+              renderScrollBar: ({ allHeight, height, top }) => {
+                const target = (height * height) / allHeight;
+                const bottom = (height * top) / allHeight;
+                barEl.style = `height: ${target}px;bottom: ${bottom}px;`;
+              },
+            });
+          })
+        );
+        const initMouse = () => {
+          let isDown = false;
+          let curY = 0;
+          barEl.addEventListener("mousedown", (e) => {
+            curY = e.pageY;
+            isDown = true;
+          });
+          document.addEventListener("mousemove", (e) => {
+            if (isDown) {
+              const len = e.pageY - curY;
+              curY = e.pageY;
+              const { scrollHeight, clientHeight, scrollTop } = listEl;
+              const target = (scrollHeight * len) / clientHeight;
+              listEl.scrollTo(0, scrollTop - target);
+            }
+          });
+          barEl.addEventListener("mouseup", (e) => {
+            curY = 0;
+            isDown = false;
+          });
+          document.addEventListener("mouseup", (e) => {
+            isDown = false;
+          });
+        };
+        initMouse();
+      };
+      init();
+    </script>
+  </body>
+</html>
