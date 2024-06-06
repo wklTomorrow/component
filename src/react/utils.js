@@ -1,4 +1,4 @@
-const files = require.context("./components", false, /\.jsx$/);
+const files = require.context("./components", false, /\.(j|t)sx$/);
 
 const modlues = {};
 files.keys().forEach((key) => {

@@ -61,6 +61,12 @@ export const react = [
     component: "webComponent",
     route: "/webComponent",
   },
+  {
+    name: "swiper",
+    path: "/react.html#/swiper",
+    component: "swiper",
+    route: "/swiper",
+  },
 ];
 
 export const components = [

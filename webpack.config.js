@@ -31,18 +31,35 @@ module.exports = {
         use: ["inject-vue"],
       },
       {
-        test: /\.ts$/,
+        test: /\.(ts)$/,
         use: {
           loader: "ts-loader",
           options: {},
         },
+        exclude: /node_modules/,
       },
       {
-        test: /\.jsx|\.tsx$/,
+        test: /\.jsx$/,
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/preset-env"],
+            presets: [
+              "@babel/preset-env",
+            ],
+          },
+        },
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.tsx$/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              "@babel/preset-env",
+              "@babel/preset-react",
+              "@babel/preset-typescript",
+            ],
           },
         },
         exclude: /node_modules/,
